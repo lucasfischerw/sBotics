@@ -248,8 +248,9 @@ async Task DoisPretos() {
         }
         await Frente(0);
         TempoInicial = 0;
+        Verde = true;
         if(Verde || Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green > Bot.GetComponent<ColorSensor>("CorDireita").Analog.Blue + 30 || Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green > Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Blue + 30) {
-            while(TempoInicial < 200) {
+            while(TempoInicial < 500) {
                 if(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness < 55 && Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green < Bot.GetComponent<ColorSensor>("CorDireita").Analog.Blue + 20) {
                     await GirarDireita(250);
                 } else if(Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Brightness < 55 && Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green < Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Blue + 20) {
@@ -275,7 +276,7 @@ async Task Tendencioso(float ForcaDireita, float ForcaEsquerda) {
 		VarTempoTendencioso = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
 		ValorTendencioso = -0.4f*Math.Abs(await Diferenca(0))-89;
 	} else if((int)DateTimeOffset.Now.ToUnixTimeMilliseconds()-VarTempoTendencioso > 1000) {
-		ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+93;
+		ValorTendencioso = -0.5f*Math.Abs(Luz(1)-Luz(2))+100;
 	}
 }
 
@@ -284,28 +285,24 @@ async Task Preto() {
         if(Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Brightness < 130 || (Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness < 10 && Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Brightness < 150)) {
             await DoisPretos();
         } else {
-            if(Bot.Inclination < 355 && Bot.Inclination > 10) {
-                await GirarDireita(100);
-            } else if(Math.Abs(Luz(1)-Luz(2)) < 50) {
-                await GirarMotores((-2.63f*Math.Abs(Luz(1)-Luz(2))+93), 100);
+            if(Math.Abs(Luz(1)-Luz(2)) < 50 || Bot.Inclination < 355 && Bot.Inclination > 10) {
+                await GirarMotores((-0.5f*Math.Abs(Luz(1)-Luz(2))+100), 100);
             } else {
-                await GirarDireita(100);
+                await GirarDireita(200);
             }
-            ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+93;
+            ValorTendencioso = -0.5f*Math.Abs(Luz(1)-Luz(2))+100;
 			VarTempoDir = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
     } else if(Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Brightness < 130 && Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green < Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Blue + 20) {
         if(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness < 130 || (Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Brightness < 10 && Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness < 150)) {
             await DoisPretos();
         } else {
-            if(Bot.Inclination < 355 && Bot.Inclination > 10) {
-                await GirarEsquerda(100);
-            } else if(Math.Abs(Luz(1)-Luz(2)) < 50) {
-                await GirarMotores(100, (-2.63f*Math.Abs(Luz(1)-Luz(2))+93));
+            if(Math.Abs(Luz(1)-Luz(2)) < 50 || Bot.Inclination < 355 && Bot.Inclination > 10) {
+                await GirarMotores(100, (-0.5f*Math.Abs(Luz(1)-Luz(2))+100));
             } else {
-                await GirarEsquerda(100);
+                await GirarEsquerda(200);
             }
-            ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+93;
+            ValorTendencioso = -0.5f*Math.Abs(Luz(1)-Luz(2))+100;
 			VarTempoEsq = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
        }
     } else {
@@ -314,7 +311,7 @@ async Task Preto() {
 		} else if(VarTempoDir > VarTempoEsq && Math.Abs(await Diferenca(0)) > 1) {
 			await Tendencioso(ValorTendencioso, 200);
 		} else if(Bot.Inclination < 355 && Bot.Inclination > 10) {
-			await Frente(300);
+			await Frente(200);
 		} else {
             await Frente(100);
         }

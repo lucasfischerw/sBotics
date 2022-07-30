@@ -251,8 +251,9 @@ async Task DoisPretos() {
         }
         await Frente(0);
         TempoInicial = 0;
+        Verde = true;
         if(Verde || Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green > Bot.GetComponent<ColorSensor>("CorDireita").Analog.Blue + 30 || Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green > Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Blue + 30) {
-            while(TempoInicial < 200) {
+            while(TempoInicial < 400) {
                 if(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness < 55 && Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green < Bot.GetComponent<ColorSensor>("CorDireita").Analog.Blue + 20) {
                     await GirarDireita(250);
                 } else if(Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Brightness < 55 && Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green < Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Blue + 20) {
@@ -285,32 +286,28 @@ async Task Tendencioso(float ForcaDireita, float ForcaEsquerda) {
 
 async Task Preto() {
     IO.Print("Luz 1: " + ((int)(Luz(1)-ValoresLuz[0])).ToString() + " Luz 2: " + ((int)(Luz(2)-ValoresLuz[1])).ToString());
-    if((Luz(1) < 130 || Luz(1)-ValoresLuz[0] < -25) && Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green < Bot.GetComponent<ColorSensor>("CorDireita").Analog.Blue + 20) {
+    if((Luz(1) < 130 || Luz(1)-ValoresLuz[0] < -25) && Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green < Bot.GetComponent<ColorSensor>("CorDireita").Analog.Red + 30) {
         if(Luz(2) < 130 || Luz(1)-ValoresLuz[0] < -85) {
             await DoisPretos();
         } else {
-            if(Bot.Inclination < 355 && Bot.Inclination > 10) {
-                await GirarDireita(50);
-            } else if(Math.Abs(Luz(1)-Luz(2)) < 50) {
-                await GirarMotores((-2.63f*Math.Abs(Luz(1)-Luz(2))+143), 150);
+            if(Math.Abs(Luz(1)-Luz(2)) < 50 || Bot.Inclination < 355 && Bot.Inclination > 10) {
+                await GirarMotores((-2.63f*Math.Abs(Luz(1)-Luz(2))+143), 100);
             } else {
                 await GirarDireita(300);
             }
-            ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+143;
+            ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+93;
 			VarTempoDir = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
-    } else if((Luz(2) < 130 || Luz(2)-ValoresLuz[1] < -25) && Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green < Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Blue + 20) {
+    } else if((Luz(2) < 130 || Luz(2)-ValoresLuz[1] < -25) && Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green < Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Red + 30) {
         if(Luz(1) < 130 || Luz(2)-ValoresLuz[1] < -85) {
             await DoisPretos();
         } else {
-            if(Bot.Inclination < 355 && Bot.Inclination > 10) {
-                await GirarEsquerda(50);
-            } else if(Math.Abs(Luz(1)-Luz(2)) < 50) {
-                await GirarMotores(150, (-2.63f*Math.Abs(Luz(1)-Luz(2))+143));
+            if(Math.Abs(Luz(1)-Luz(2)) < 50 || Bot.Inclination < 355 && Bot.Inclination > 10) {
+                await GirarMotores(100, (-2.63f*Math.Abs(Luz(1)-Luz(2))+93));
             } else {
                 await GirarEsquerda(300);
             }
-            ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+143;
+            ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+93;
 			VarTempoEsq = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
        }
     } else {
@@ -321,7 +318,7 @@ async Task Preto() {
 		} else if(Bot.Inclination < 355 && Bot.Inclination > 10) {
 			await Frente(300);
 		} else {
-            await Frente(150);
+            await Frente(100);
         }
     }
     ValoresLuz = new[]{Luz(1), Luz(2)};
@@ -384,8 +381,8 @@ async Task Main() {
     await Time.Delay(300);
     await Destravar();
     while(true) {
-        await Verde();
         await Preto();
+        await Verde();
         await Desvio();
         await Time.Delay(50);
     }
