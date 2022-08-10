@@ -254,12 +254,14 @@ async Task DoisPretos() {
         Verde = true;
         if(Verde || Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green > Bot.GetComponent<ColorSensor>("CorDireita").Analog.Blue + 30 || Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green > Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Blue + 30) {
             while(TempoInicial < 400) {
-                if(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness < 55 && Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green < Bot.GetComponent<ColorSensor>("CorDireita").Analog.Blue + 20) {
-                    await GirarDireita(250);
+                if(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness < 55 && Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Brightness < 55) {
+                    return;
+                } else if(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness < 55 && Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green < Bot.GetComponent<ColorSensor>("CorDireita").Analog.Blue + 20) {
+                    await GirarDireita(300);
                 } else if(Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Brightness < 55 && Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green < Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Blue + 20) {
-                    await GirarEsquerda(250);
+                    await GirarEsquerda(300);
                 } else {
-                    await Frente(150);
+                    await Frente(100);
                 }
                 await Time.Delay(50);
                 TempoInicial += 50;
@@ -285,40 +287,39 @@ async Task Tendencioso(float ForcaDireita, float ForcaEsquerda) {
 }
 
 async Task Preto() {
-    IO.Print("Luz 1: " + ((int)(Luz(1)-ValoresLuz[0])).ToString() + " Luz 2: " + ((int)(Luz(2)-ValoresLuz[1])).ToString());
     if((Luz(1) < 130 || Luz(1)-ValoresLuz[0] < -25) && Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green < Bot.GetComponent<ColorSensor>("CorDireita").Analog.Red + 30) {
         if(Luz(2) < 130 || Luz(1)-ValoresLuz[0] < -85) {
             await DoisPretos();
         } else {
-            if(Math.Abs(Luz(1)-Luz(2)) < 50 || Bot.Inclination < 355 && Bot.Inclination > 10) {
-                await GirarMotores((-2.63f*Math.Abs(Luz(1)-Luz(2))+143), 100);
+            if(Math.Abs(Luz(1)-Luz(2)) < 50 || (Bot.Inclination < 355 && Bot.Inclination > 10)) {
+                await GirarMotores((-2.63f*Math.Abs(Luz(1)-Luz(2))+143), 150);
             } else {
                 await GirarDireita(300);
             }
-            ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+93;
+            ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+143;
 			VarTempoDir = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
     } else if((Luz(2) < 130 || Luz(2)-ValoresLuz[1] < -25) && Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green < Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Red + 30) {
         if(Luz(1) < 130 || Luz(2)-ValoresLuz[1] < -85) {
             await DoisPretos();
         } else {
-            if(Math.Abs(Luz(1)-Luz(2)) < 50 || Bot.Inclination < 355 && Bot.Inclination > 10) {
-                await GirarMotores(100, (-2.63f*Math.Abs(Luz(1)-Luz(2))+93));
+            if(Math.Abs(Luz(1)-Luz(2)) < 50 || (Bot.Inclination < 355 && Bot.Inclination > 10)) {
+                await GirarMotores(150, (-2.63f*Math.Abs(Luz(1)-Luz(2))+143));
             } else {
                 await GirarEsquerda(300);
             }
-            ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+93;
+            ValorTendencioso = -2.63f*Math.Abs(await Diferenca(0))+143;
 			VarTempoEsq = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
        }
     } else {
         if(VarTempoEsq > VarTempoDir && Math.Abs(await Diferenca(0)) > 1) {
-			await Tendencioso(200, ValorTendencioso);
+			await Tendencioso(150, ValorTendencioso);
 		} else if(VarTempoDir > VarTempoEsq && Math.Abs(await Diferenca(0)) > 1) {
-			await Tendencioso(ValorTendencioso, 200);
+			await Tendencioso(ValorTendencioso, 150);
 		} else if(Bot.Inclination < 355 && Bot.Inclination > 10) {
 			await Frente(300);
 		} else {
-            await Frente(100);
+            await Frente(150);
         }
     }
     ValoresLuz = new[]{Luz(1), Luz(2)};
