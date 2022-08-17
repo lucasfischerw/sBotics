@@ -119,6 +119,13 @@ async Task Girar(int Angulo, int Precisao) {
     await Destravar();
 }
 
+async Task LevantaGarra() {
+	Bot.GetComponent<Servomotor>("Garra2").Locked = false;
+	Bot.GetComponent<Servomotor>("Garra2").Apply(-500, -150);
+	await Time.Delay(1000);
+	Bot.GetComponent<Servomotor>("Garra2").Locked = true;
+}
+
 async Task GiroVerde(string SensorVerde, string OutroSensor, int ObjetivoTempo, int Forca) {
     bool DoisVerdes = false;
     bool Preto = false;
@@ -349,10 +356,10 @@ async Task Desvio() {
             await Girar(60, 1);
             await Frente(150);
             await Time.Delay(2800);
-            await Girar(-90, 0);
+            await Girar(-80, 0);
             await Frente(150);
-            await Time.Delay(2300);
-            await Girar(-60, 0);
+            await Time.Delay(3200);
+            await Girar(-50, 0);
             while(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness > 55) {
                 await Frente(150);
                 await Time.Delay(50);
@@ -378,7 +385,7 @@ async Task Desvio() {
 }
 
 async Task Main() {
-    // await LevantaGarra();
+    await LevantaGarra();
     await Time.Delay(300);
     await Destravar();
     while(true) {
