@@ -129,11 +129,10 @@ async Task LevantaGarra() {
 async Task GiroVerde(string SensorVerde, string OutroSensor, int ObjetivoTempo, int Forca) {
     bool DoisVerdes = false;
     bool Preto = false;
-    int TempoInicial = 0;
-	while(TempoInicial < ObjetivoTempo) {
+    int TempoInicial = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
+	while((int)DateTimeOffset.Now.ToUnixTimeMilliseconds()-TempoInicial < ObjetivoTempo) {
         await Frente(150);
         await Time.Delay(50);
-        TempoInicial += 50;
         if(Bot.GetComponent<ColorSensor>(OutroSensor).Analog.Green > Bot.GetComponent<ColorSensor>(OutroSensor).Analog.Blue + 20 && !Preto) {
             DoisVerdes = true;
         } else if(Bot.GetComponent<ColorSensor>(OutroSensor).Analog.Brightness < 55) {
@@ -175,9 +174,9 @@ async Task GiroVerde(string SensorVerde, string OutroSensor, int ObjetivoTempo, 
 
 async Task Verde() {
     if(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green > Bot.GetComponent<ColorSensor>("CorDireita").Analog.Red + 30) {
-        await GiroVerde("CorDireita", "CorEsquerda", 650, -250);
+        await GiroVerde("CorDireita", "CorEsquerda", 700, -250);
     } else if(Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Green > Bot.GetComponent<ColorSensor>("CorEsquerda").Analog.Red + 30) {
-        await GiroVerde("CorEsquerda", "CorDireita", 650, 250);
+        await GiroVerde("CorEsquerda", "CorDireita", 700, 250);
     }
 }
 
@@ -215,9 +214,9 @@ async Task DoisPretos() {
             }
         }
         if(ValoresLuz[0] > 150 || ValoresLuz[1] > 150 || ValoresLuz[0] == 0 || ValoresLuz[1] == 0) {
-			ValoresTempo = new int[] {250, 1300, 2800};
+			ValoresTempo = new int[] {250, 1800, 3300};
 		} else {
-			ValoresTempo = new int[] {0, 1050, 2550};
+			ValoresTempo = new int[] {0, 1550, 3050};
 		}
         bool ContinuarDoisPretos = true;
         if(ValoresTempo[0] != 0) {
@@ -359,12 +358,14 @@ async Task Desvio() {
             await Girar(-90, 0);
             await Frente(150);
             await Time.Delay(2250);
-            await Girar(-56, 0);
+            await Girar(-60, 0);
             while(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness > 55) {
                 await Frente(150);
                 await Time.Delay(50);
             }
-            await DoisPretos();
+            await Frente(150);
+            await Time.Delay(250);
+            await Girar(45, 1);
             int TempoInicial = 0;
             while(TempoInicial < 300) {
                 if(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness < 55 && Bot.GetComponent<ColorSensor>("CorDireita").Analog.Green < Bot.GetComponent<ColorSensor>("CorDireita").Analog.Blue + 20) {
