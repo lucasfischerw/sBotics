@@ -464,7 +464,7 @@ async Task Desvio() {
             await Frente(150);
             await Time.Delay(2800);
             await Girar(-90, 0);
-            await Frente(150);
+            await Frente(250);
             await Time.Delay(2300);
             await Girar(-60, 0);
             while(Bot.GetComponent<ColorSensor>("CorDireita").Analog.Brightness > 55) {
