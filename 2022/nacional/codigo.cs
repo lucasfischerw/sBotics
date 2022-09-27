@@ -201,6 +201,17 @@ async Task AndarReto(float ForcaFrente) {
 }
 
 async Task Redzone() {
+    Bot.GetComponent<Servomotor>("Garra2").Locked = false;
+    Bot.GetComponent<Servomotor>("Garra2").Apply(500, 500);
+    await Time.Delay(500);
+    Bot.GetComponent<Servomotor>("Garra2").Apply(500, 125);
+    await Time.Delay(1000);
+    while(Bot.GetComponent<Servomotor>("Garra2").Angle > 0) {
+        IO.Print(Bot.GetComponent<Servomotor>("Garra2").Angle.ToString());
+        Bot.GetComponent<Servomotor>("Garra2").Apply(500, 50);
+        await Time.Delay(16);
+    }
+    Bot.GetComponent<Servomotor>("Garra2").Locked = true;
     Bot.GetComponent<Servomotor>("GarraDireita").Locked = false;
     Bot.GetComponent<Servomotor>("GarraEsquerda").Locked = false;
     Bot.GetComponent<Servomotor>("GarraDireita").Apply(50, -270);
@@ -527,12 +538,6 @@ async Task Desvio() {
 }
 
 async Task Main() {
-    await Time.Delay(800);
-    Bot.GetComponent<Servomotor>("Garra2").Locked = false;
-    Bot.GetComponent<Servomotor>("Garra2").Apply(500, -230);
-    await Time.Delay(2000);
-    Bot.GetComponent<Servomotor>("Garra2").Locked = true;
-    await Time.Delay(800);
     await Destravar();
     while(true) {
         await Preto();
