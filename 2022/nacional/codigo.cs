@@ -203,9 +203,11 @@ async Task AbrirGarra() {
 }
 
 async Task BaixarGarra() {
+    int AnguloInicial = (int)Bot.GetComponent<Servomotor>("Garra2").Angle;
     Bot.GetComponent<Servomotor>("Garra2").Locked = false;
     int TempoInicio = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
     while(Bot.GetComponent<Servomotor>("Garra2").Angle > 175 || Bot.GetComponent<Servomotor>("Garra2").Angle < 10) {
+        IO.Print("loop 1");
         Bot.GetComponent<Servomotor>("Garra2").Apply(500, -2000);
         await Time.Delay(16);
         if((int)DateTimeOffset.Now.ToUnixTimeMilliseconds()-TempoInicio > 150) {
@@ -215,15 +217,17 @@ async Task BaixarGarra() {
             TempoInicio = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
     }
-    while(Bot.GetComponent<Servomotor>("Garra2").Angle > 50 || Bot.GetComponent<Servomotor>("Garra2").Angle < 10) {
-        // IO.Print(Bot.GetComponent<Servomotor>("Garra2").Angle.ToString());
+    while(Bot.GetComponent<Servomotor>("Garra2").Angle > 50) {
+        IO.Print("loop 2");//(AnguloInicial-Bot.GetComponent<Servomotor>("Garra2").Angle).ToString());
         Bot.GetComponent<Servomotor>("Garra2").Apply(500, -2000);
         await Time.Delay(16);
     }
     while(Bot.GetComponent<Servomotor>("Garra2").Angle > 35) {
+        IO.Print("loop 3");
         Bot.GetComponent<Servomotor>("Garra2").Apply(500, -200);
         await Time.Delay(16);
     }
+    IO.Print("foi");
     Bot.GetComponent<Servomotor>("Garra2").Locked = true;
     await Time.Delay(100);
     Bot.GetComponent<Servomotor>("Garra2").Locked = false;
@@ -235,13 +239,13 @@ async Task LevantarGarra() {
     int TempoInicio = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
     Bot.GetComponent<Servomotor>("Garra2").Locked = false;
     int AnguloInicial = (int)Bot.GetComponent<Servomotor>("Garra2").Angle;
+    IO.Print((Bot.GetComponent<Servomotor>("Garra2").Angle-AnguloInicial).ToString());
     while(Bot.GetComponent<Servomotor>("Garra2").Angle < AnguloInicial+10) {
-        IO.Print((Bot.GetComponent<Servomotor>("Garra2").Angle-AnguloInicial).ToString());
-        Bot.GetComponent<Servomotor>("Garra2").Apply(500, 260);
+        Bot.GetComponent<Servomotor>("Garra2").Apply(500, 280);
         await Time.Delay(16);      
     }
     while(Bot.GetComponent<Servomotor>("Garra2").Angle < AnguloInicial+29) {
-        Bot.GetComponent<Servomotor>("Garra2").Apply(500, 320);
+        Bot.GetComponent<Servomotor>("Garra2").Apply(500, 330);
         await Time.Delay(16);      
     }
     Bot.GetComponent<Servomotor>("Garra2").Locked = true;
@@ -259,14 +263,10 @@ async Task Entregar() {
     Bot.GetComponent<Servomotor>("Garra2").Locked = true;
     await Time.Delay(1500);
     await LevantarGarra();
-
-}
-
-async Task ErguerGarra() {
-    Bot.GetComponent<Servomotor>("Garra1").Locked = false;
-    Bot.GetComponent<Servomotor>("Garra1").Apply(500, 115);
-    await Time.Delay(800);
-    Bot.GetComponent<Servomotor>("Garra1").Locked = true;
+    Bot.GetComponent<Servomotor>("Garra2").Locked = false;
+    Bot.GetComponent<Servomotor>("Garra2").Apply(500, 260);
+    await Time.Delay(200);
+    Bot.GetComponent<Servomotor>("Garra2").Locked = true;
 }
 
 async Task Girar(int Angulo, int Precisao) {
@@ -380,11 +380,11 @@ async Task Redzone() {
     await Frente(100);
     await Time.Delay(500);
     await Parar();
-    double UltraFrente = Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog;
     await BaixarGarra();
     await Time.Delay(1000);
     await Destravar();
     await Alinhar();
+    double UltraFrente = Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog;
     double Direita = 0;
     int TrianguloDireita = 0;
     int RedzoneDeitada = 0;
@@ -407,8 +407,9 @@ async Task Redzone() {
         // IO.Print("Redzone de pe");
         // IO.Print(TrianguloDireita.ToString());
         if(TrianguloDireita > 8 && UltraFrente == -1) { //de pé direita
+            await Destravar();
             while(true) {
-                await Frente(100);
+                await Frente(200);
                 await Time.Delay(16);
                 // IO.Print((Bot.GetComponent<UltrasonicSensor>("UltraDireita").Analog).ToString());
                 if(Bot.GetComponent<UltrasonicSensor>("UltraDireita").Analog < 16) {
@@ -420,8 +421,8 @@ async Task Redzone() {
                     await Time.Delay(300);
                     await Destravar();
                     int Tempo_Inicial = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                    while((int)DateTimeOffset.Now.ToUnixTimeMilliseconds()-Tempo_Inicial < 10600) {
-                        await Frente(175);
+                    while((int)DateTimeOffset.Now.ToUnixTimeMilliseconds()-Tempo_Inicial < 12360) {
+                        await Frente(150);
                         await Time.Delay(16);
                     }
                     await FecharGarra();
@@ -433,13 +434,7 @@ async Task Redzone() {
                     await Frente(-100);
                     await Time.Delay(1000);
                     await Girar(90, 0);
-                    //await Alinhar();
-                    // Bot.GetComponent<Servomotor>("Garra2").Locked = false;
-                    // Bot.GetComponent<Servomotor>("Garra2").Apply(500, -100);
-                    // await Time.Delay(200);
-                    // Bot.GetComponent<Servomotor>("Garra2").Locked = true; 
                     await Parar();
-                    //await ErguerGarra();
                     await Time.Delay(80);
                     await Destravar();
                     await Time.Delay(80);
@@ -456,6 +451,21 @@ async Task Redzone() {
                     await Time.Delay(4000);
                     await Parar();
                     await Entregar();
+                    await Destravar();
+                    await Frente(-200);
+                    await Time.Delay(600);
+                    await Girar(90,0);
+                    await Parar();
+                    await BaixarGarra();
+                    await Destravar();
+                    while(Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog > 5)
+                    {
+                    await Frente(200);
+                    await Time.Delay(16);
+                    }
+                    await Girar(90,0);
+                    await Parar();
+                    return;
                 }
             }
         }
@@ -678,24 +688,11 @@ async Task Preto() {
     ValoresLuz = new[]{Luz(1), Luz(2)};
 }
 
-async Task Desviar(int Tempo) {
-	VarTempo = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
-	while(DateTimeOffset.Now.ToUnixTimeMilliseconds()-VarTempo < Tempo) {
-		if(Luz(2) < 55) {
-			DesvioVerdadeiro = false;
-			break;
-		} else {
-			await Frente(150);
-		}
-        await Time.Delay(50);
-	}
-}
-
 async Task Desvio() {
     if(Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog < 1.5 && Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog > 0 && (Bot.Inclination > 355 || Bot.Inclination < 10)) {
         await Time.Delay(50);
         if(Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog < 1.5 && Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog > 0 && (Bot.Inclination > 355 || Bot.Inclination < 10)) {
-            while(Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog < 2.5) {
+            while(Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog < 2.1) {
                 await Frente(-50);
                 await Time.Delay(50);
             }
@@ -731,7 +728,7 @@ async Task Desvio() {
 }
 
 async Task Main() {
-    IO.Print("bom dia a todos");
+    IO.Print(Bot.GetComponent<Servomotor>("Garra2").Angle.ToString());
     await Destravar();
     while(true) {
         await Preto();
