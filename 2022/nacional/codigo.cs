@@ -122,7 +122,7 @@ async Task GirarMotores(float ForcaDireita, float ForcaEsquerda) {
 }
 
 async Task FecharGarra() {
-    int Velocidade = 250;
+    int Velocidade = 300;
     int DireitaAberta = 0;
     int EsquerdaAberta = -90;
     int DireitaFechada = -20;
@@ -139,7 +139,7 @@ async Task FecharGarra() {
 }
 
 async Task AbrirGarra() {
-    int Velocidade = 250;
+    int Velocidade = 320;
     int DireitaAberta = 180;
     int EsquerdaAberta = 90;
     int DireitaFechada = 210;
@@ -192,10 +192,10 @@ async Task BaixarGarra() {
         await Time.Delay(16);
         IO.Print(TempoInicio.ToString());
     }
-    Bot.GetComponent<Servomotor>("Garra2").Locked = true;
-    await Time.Delay(100);
-    Bot.GetComponent<Servomotor>("Garra2").Locked = false;
-    await Time.Delay(500);
+    Bot.GetComponent<Servomotor>("Garra2").Apply(500, 100);
+    await Time.Delay(200);
+    Bot.GetComponent<Servomotor>("Garra2").Apply(500, 0);
+    await Time.Delay(2000);
     Bot.GetComponent<Servomotor>("Garra2").Locked = true;
 }
 
@@ -204,7 +204,7 @@ async Task LevantarGarra() {
     // int TempoInicio = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
     Bot.GetComponent<Servomotor>("Garra2").Locked = false;
     int AnguloInicial = (int)Bot.GetComponent<Servomotor>("Garra2").Angle;
-    while(Bot.GetComponent<Servomotor>("Garra2").Angle < AnguloInicial+29) {
+    while(Bot.GetComponent<Servomotor>("Garra2").Angle < AnguloInicial+10) {
         Bot.GetComponent<Servomotor>("Garra2").Apply(500, Forca);
         await Time.Delay(16);
         // if((int)DateTimeOffset.Now.ToUnixTimeMilliseconds()-TempoInicio > 5000) {
@@ -212,10 +212,10 @@ async Task LevantarGarra() {
         //     TempoInicio = (int)DateTimeOffset.Now.ToUnixTimeMilliseconds();
         // }
     }
-    // while(Bot.GetComponent<Servomotor>("Garra2").Angle < AnguloInicial+29) {
-    //     Bot.GetComponent<Servomotor>("Garra2").Apply(500, Forca+50);
-    //     await Time.Delay(16);
-    // }
+    while(Bot.GetComponent<Servomotor>("Garra2").Angle < AnguloInicial+29) {
+        Bot.GetComponent<Servomotor>("Garra2").Apply(500, Forca+15);
+        await Time.Delay(16);
+    }
     Bot.GetComponent<Servomotor>("Garra2").Locked = true;
     
     // Bot.GetComponent<Servomotor>("Garra2").Locked = false;
@@ -261,7 +261,7 @@ async Task EntregarKit() {
     Bot.GetComponent<Servomotor>("GarraEsquerda").Locked = false;
     Bot.GetComponent<Servomotor>("GarraDireita").Apply(500, -200);
     Bot.GetComponent<Servomotor>("GarraEsquerda").Apply(500, 200);
-    await Time.Delay(100);
+    await Time.Delay(200);
     Bot.GetComponent<Servomotor>("GarraDireita").Locked = true;
     Bot.GetComponent<Servomotor>("GarraEsquerda").Locked = true;
 
@@ -786,11 +786,11 @@ async Task Redzone() {
         // IO.Print(RedzoneDeitada.ToString());
     }
     await Alinhar();
-    if (TrianguloDireita > 5 && RedzoneDeitada < 5) { //de pé
+    if (TrianguloDireita > 3 && RedzoneDeitada < 5) { //de pé
         IO.Print("Redzone de pe caso 1");
         await VarrerDireita();
         await ProcurarSaida();
-    } else if (TrianguloDireita > 5) {
+    } else if (TrianguloDireita > 3) {
         IO.Print("Redzone deitada caso 1");
         await VarrerDireitaParcial();
         await VarrerEsquerda();
@@ -820,12 +820,12 @@ async Task Redzone() {
             }
         }
         await Alinhar();
-        if (TrianguloEsquerda > 5 && RedzoneDeitada < 5) {
+        if (TrianguloEsquerda > 3 && RedzoneDeitada < 5) {
             IO.Print("Redzone de pe caso 2");
             await VarrerEsquerdaParcial();
             await VarrerDireita();
             await ProcurarSaida();
-        } else if (TrianguloEsquerda > 5) {
+        } else if (TrianguloEsquerda > 3) {
             IO.Print("Redzone deitada caso 2");
             await VarrerEsquerda();
             await ProcurarSaida();
