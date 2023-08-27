@@ -83,23 +83,27 @@ async Task Girar(int Angulo, int Precisao) {
 }
 
 async Task Tendencioso(double Valor) {
-    if(Valor > 0) {
-        MoverMotores((-2*Valor)+250, 250);
-    } else if(Valor < 0) {
-        MoverMotores(250, (2*Valor)+250);
+    if(Valor > 10) {
+        IO.Print("Tendencioso");
+        MoverMotores((-2*Valor)+225, 225);
+    } else if(Valor < -10) {
+        IO.Print("Tendencioso");
+        MoverMotores(225, (2*Valor)+225);
     } else {
-        MoverMotores(250, 250);
+        IO.Print("Frente");
+        MoverMotores(225, 225);
     }
 }
 
 async Task Verde() {
-    if(Bot.GetComponent<ColorSensor>("S1").Analog.Green > Bot.GetComponent<ColorSensor>("S1").Analog.Blue + 20) {
+    if(Bot.GetComponent<ColorSensor>("S1").Analog.Green-Bot.GetComponent<ColorSensor>("S1").Analog.Red > 10 || (Bot.GetComponent<ColorSensor>("S1").Analog.Green > 70 && Bot.GetComponent<ColorSensor>("S1").Analog.Red < 40)) {
+        IO.Print("Verde!");
         double Tempo_Inicial = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         bool Dois_Verdes = false;
         bool Passou_Linha_Preta = false;
         while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 400) {
             MoverMotores(250, 250);
-            if(!Passou_Linha_Preta && Bot.GetComponent<ColorSensor>("S2").Analog.Green > Bot.GetComponent<ColorSensor>("S2").Analog.Blue + 20) {
+            if(!Passou_Linha_Preta && Bot.GetComponent<ColorSensor>("S2").Analog.Green > Bot.GetComponent<ColorSensor>("S2").Analog.Red + 20) {
                 Dois_Verdes = true;
             } else if(Bot.GetComponent<ColorSensor>("S1").Analog.Green < 30) {
                 Passou_Linha_Preta = true;
@@ -109,6 +113,7 @@ async Task Verde() {
         MoverMotores(350, -350);
         await Time.Delay(200);
         if(Dois_Verdes) {
+            IO.Print("Dois Verdes!");
             MoverMotores(350, -350);
             await Time.Delay(1000);
         }
@@ -116,13 +121,20 @@ async Task Verde() {
             MoverMotores(350, -350);
             await Time.Delay(25);
         }
-    } else if(Bot.GetComponent<ColorSensor>("S2").Analog.Green > Bot.GetComponent<ColorSensor>("S2").Analog.Blue + 20) {
+        Tempo_Inicial = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 400) {
+            double Diferenca = Bot.GetComponent<ColorSensor>("S1").Analog.Green - Bot.GetComponent<ColorSensor>("S2").Analog.Green;
+            await Tendencioso(Diferenca);
+            await Time.Delay(25);
+        }
+    } else if(Bot.GetComponent<ColorSensor>("S2").Analog.Green-Bot.GetComponent<ColorSensor>("S2").Analog.Red > 10 || (Bot.GetComponent<ColorSensor>("S2").Analog.Green > 70 && Bot.GetComponent<ColorSensor>("S2").Analog.Red < 40)) {
+        IO.Print("Verde!");
         double Tempo_Inicial = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         bool Dois_Verdes = false;
         bool Passou_Linha_Preta = false;
         while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 400) {
             MoverMotores(250, 250);
-            if(!Passou_Linha_Preta && Bot.GetComponent<ColorSensor>("S1").Analog.Green > Bot.GetComponent<ColorSensor>("S1").Analog.Blue + 20) {
+            if(!Passou_Linha_Preta && Bot.GetComponent<ColorSensor>("S1").Analog.Green > Bot.GetComponent<ColorSensor>("S1").Analog.Red + 20) {
                 Dois_Verdes = true;
             } else if(Bot.GetComponent<ColorSensor>("S1").Analog.Green < 30) {
                 Passou_Linha_Preta = true;
@@ -132,11 +144,18 @@ async Task Verde() {
         MoverMotores(-350, 350);
         await Time.Delay(200);
         if(Dois_Verdes) {
+            IO.Print("Dois Verdes!");
             MoverMotores(-350, 350);
             await Time.Delay(1000);
         }
         while(Bot.GetComponent<ColorSensor>("S2").Analog.Green > 30) {
             MoverMotores(-350, 350);
+            await Time.Delay(25);
+        }
+        Tempo_Inicial = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 400) {
+            double Diferenca = Bot.GetComponent<ColorSensor>("S1").Analog.Green - Bot.GetComponent<ColorSensor>("S2").Analog.Green;
+            await Tendencioso(Diferenca);
             await Time.Delay(25);
         }
     }
@@ -155,6 +174,7 @@ async Task Preto() {
             }
         }
         if(!Interseccao) {
+            IO.Print("Curva Direita");
             Parar();
             await Time.Delay(25);
             Destravar();
@@ -164,7 +184,7 @@ async Task Preto() {
             }
         }
         Tempo_Inicial = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 300) {
+        while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 400) {
             Diferenca = Bot.GetComponent<ColorSensor>("S1").Analog.Green - Bot.GetComponent<ColorSensor>("S2").Analog.Green;
             await Tendencioso(Diferenca);
             await Time.Delay(25);
@@ -180,6 +200,7 @@ async Task Preto() {
             }
         }
         if(!Interseccao) {
+            IO.Print("Curva Esquerda");
             Parar();
             await Time.Delay(25);
             Destravar();
@@ -189,7 +210,7 @@ async Task Preto() {
             }
         }
         Tempo_Inicial = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 300) {
+        while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 400) {
             Diferenca = Bot.GetComponent<ColorSensor>("S1").Analog.Green - Bot.GetComponent<ColorSensor>("S2").Analog.Green;
             await Tendencioso(Diferenca);
             await Time.Delay(25);
@@ -204,7 +225,7 @@ async Task Preto() {
 }
 
 async Task Desvio() {
-    if(Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog < 1.5 && Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog > 0) {
+    if(Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog > 0 && Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog < 1.5) {
         while(Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog < 2.5 && Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog > 0) {
             MoverMotores(-150, -150);
             await Time.Delay(25);
