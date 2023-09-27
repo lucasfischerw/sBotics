@@ -105,12 +105,18 @@ async Task TendenciosoComTimer() {//double Valor) {
 
 async Task Tendencioso(double Valor) {
     // IO.Print(Valor.ToString());
-    if(Valor > 10) {
+     if(Valor > 10) {
         // IO.Print("Tendencioso");
-        MoverMotores((-2*Clamp(Valor, 10, 30))+225, 225);
+        if((Bot.Inclination > 330 &&  Bot.Inclination < 350) || (Bot.Inclination > 5 &&  Bot.Inclination < 30)) {
+            Valor /= 2;
+        }
+        MoverMotores((-2*Valor)+225, 225);
     } else if(Valor < -10) {
+        if((Bot.Inclination > 330 &&  Bot.Inclination < 350) || (Bot.Inclination > 5 &&  Bot.Inclination < 30)) {
+            Valor /= 2;
+        }
         // IO.Print("Tendencioso");
-        MoverMotores(225, (2*Clamp(Valor, -30, -10))+225);
+        MoverMotores(225, (2*Valor)+225);
     } else {
         // IO.Print("Frente");
         MoverMotores(225, 225);
