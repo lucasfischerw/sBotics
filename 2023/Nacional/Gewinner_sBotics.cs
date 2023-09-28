@@ -55,7 +55,6 @@ void MoverMotores(double ValorDir, double ValorEsq) {
         ValorDir *= 0.6;
         ValorEsq *= 0.6;
     }
-    IO.Print(ValorDir.ToString()+" e "+ValorEsq.ToString());
     Bot.GetComponent<Servomotor>("frontLeftMotor").Apply(50, ValorEsq);
     Bot.GetComponent<Servomotor>("leftMotor").Apply(50, ValorEsq);
     Bot.GetComponent<Servomotor>("frontRightMotor").Apply(50, ValorDir);
@@ -252,6 +251,12 @@ async Task Preto() {
     }
 }
 
+async Task Vermelho() {
+    if(Bot.GetComponent<ColorSensor>("S2").Analog.Red > 160 && Bot.GetComponent<ColorSensor>("S2").Analog.Red > Bot.GetComponent<ColorSensor>("S2").Analog.Green + 45) {
+        Parar();
+    }
+}
+
 async Task Desvio() {
     if(Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog > 0 && Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog < 1.5) {
         while(Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog < 2.5 && Bot.GetComponent<UltrasonicSensor>("UltraFrente").Analog > 0) {
@@ -287,6 +292,7 @@ async Task Main() {
     while(true) {
         await Preto();
         await Verde();
+        await Vermelho();
         await Desvio();
         await Time.Delay(16);
     }
