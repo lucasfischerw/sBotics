@@ -52,8 +52,8 @@ void Parar() {
 
 void MoverMotores(double ValorDir, double ValorEsq) {
     if((Bot.Inclination > 330 &&  Bot.Inclination < 350) || (Bot.Inclination > 5 &&  Bot.Inclination < 30)) {
-        ValorDir *= 0.7;
-        ValorEsq *= 0.7;
+        ValorDir *= 0.6;
+        ValorEsq *= 0.6;
     }
     Bot.GetComponent<Servomotor>("frontLeftMotor").Apply(50, ValorEsq);
     Bot.GetComponent<Servomotor>("leftMotor").Apply(50, ValorEsq);
@@ -94,21 +94,16 @@ async Task TendenciosoComTimer() {//double Valor) {
         await Time.Delay(25);
     }
         // if(Valor > 10) {
-    //     IO.Print("Tendencioso");
     //     MoverMotores((-2*Valor)+225, 225);
     // } else if(Valor < -10) {
-    //     IO.Print("Tendencioso");
     //     MoverMotores(225, (2*Valor)+225);
     // } else {
-    //     IO.Print("Frente");
     //     MoverMotores(225, 225);
     // }
 }
 
 async Task Tendencioso(double Valor) {
-    // IO.Print(Valor.ToString());
      if(Valor > 10) {
-        // IO.Print("Tendencioso");
         if((Bot.Inclination > 330 &&  Bot.Inclination < 350) || (Bot.Inclination > 5 &&  Bot.Inclination < 30)) {
             Valor /= 2;
         }
@@ -117,10 +112,8 @@ async Task Tendencioso(double Valor) {
         if((Bot.Inclination > 330 &&  Bot.Inclination < 350) || (Bot.Inclination > 5 &&  Bot.Inclination < 30)) {
             Valor /= 2;
         }
-        // IO.Print("Tendencioso");
         MoverMotores(225, (2*Valor)+225);
     } else {
-        // IO.Print("Frente");
         MoverMotores(225, 225);
     }
 }
@@ -313,39 +306,55 @@ async Task AcharLinha() {
         }
     }
 }
+
+bool Prata() {
+    if(Bot.GetComponent<ColorSensor>("S0").Analog.Blue >= 95 && Bot.GetComponent<ColorSensor>("S0").Analog.Blue >= Bot.GetComponent<ColorSensor>("S0").Analog.Red+1 && Bot.GetComponent<ColorSensor>("S0").Analog.Blue  > Bot.GetComponent<ColorSensor>("S0").Analog.Green && Bot.GetComponent<ColorSensor>("S0").Analog.Red  < 147) {
+        if(Bot.GetComponent<ColorSensor>("S3").Analog.Blue >= 95 && Bot.GetComponent<ColorSensor>("S3").Analog.Blue >= Bot.GetComponent<ColorSensor>("S3").Analog.Red+1 && Bot.GetComponent<ColorSensor>("S3").Analog.Blue  > Bot.GetComponent<ColorSensor>("S3").Analog.Green && Bot.GetComponent<ColorSensor>("S3").Analog.Red  < 147) {
+        }
+            return true;
+        }
+    return false;
+}
 async Task Redzone() {
-    if(Bot.GetComponent<ColorSensor>("S0").Analog.Blue >= 95 && Bot.GetComponent<ColorSensor>("S0").Analog.Blue >= Bot.GetComponent<ColorSensor>("S0").Analog.Red-4 && Bot.GetComponent<ColorSensor>("S0").Analog.Blue  > Bot.GetComponent<ColorSensor>("S0").Analog.Green-4 && Bot.GetComponent<ColorSensor>("S0").Analog.Red  < 147) {
-        if(Bot.GetComponent<ColorSensor>("S3").Analog.Blue >= 95 && Bot.GetComponent<ColorSensor>("S3").Analog.Blue >= Bot.GetComponent<ColorSensor>("S3").Analog.Red-4 && Bot.GetComponent<ColorSensor>("S3").Analog.Blue  > Bot.GetComponent<ColorSensor>("S3").Analog.Green-4 && Bot.GetComponent<ColorSensor>("S3").Analog.Red  < 147) {
+    if(Prata()) {
+        Parar();
+        await Time.Delay(500);
+        Destravar();
+        if(Prata()) {
+            IO.Print("REDZONE UHUUUUL");
             MoverMotores(300,300);
             await Time.Delay(6200);
             while(true) {
                 await Girar(45,1);
                 MoverMotores(300,300);
-                await Time.Delay(400);
+                await Time.Delay(600);
                 double Tempo_Inicial = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 1200) {
-                    IO.Print(Bot.GetComponent<UltrasonicSensor>("frontLeftDistance").Analog.ToString());
+                double Maior = Bot.GetComponent<UltrasonicSensor>("frontLeftDistance").Analog;
+                while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 1000) {
                     MoverMotores(300,300);
                     await Time.Delay(25);
-                    if(Bot.GetComponent<UltrasonicSensor>("frontLeftDistance").Analog < 0 || Bot.GetComponent<UltrasonicSensor>("frontLeftDistance").Analog > 11) {
+                    if(Bot.GetComponent<UltrasonicSensor>("frontLeftDistance").Analog < 0 || Bot.GetComponent<UltrasonicSensor>("frontLeftDistance").Analog > 10.5) {
+                        if(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial > 300) {
+                            MoverMotores(-250,-250);
+                            await Time.Delay(1000);
+                        }
                         await Girar(-90,1);
-                        while(Bot.GetComponent<ColorSensor>("S0").Analog.Green > 100) {
+                        while(Bot.GetComponent<ColorSensor>("S1").Analog.Green > 100) {
                             MoverMotores(250,250);
                             await Time.Delay(25);
                         }
                         await Girar(-45,1);
                         MoverMotores(250,250);
-                        await Time.Delay(1200);
+                        await Time.Delay(1000);
                         await AcharLinha();
                         return;
                     }
                 } 
-                IO.Print("caso 2");
                 Tempo_Inicial = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                 while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Tempo_Inicial < 1000) {
                     MoverMotores(300,300);
                     await Time.Delay(25);
-                    if(Bot.GetComponent<UltrasonicSensor>("frontLeftDistance").Analog < 0 || Bot.GetComponent<UltrasonicSensor>("frontLeftDistance").Analog > 11) {
+                    if(Bot.GetComponent<UltrasonicSensor>("frontLeftDistance").Analog < 0 || Bot.GetComponent<UltrasonicSensor>("frontLeftDistance").Analog > 10.5) {
                         MoverMotores(300,300);
                         await Time.Delay(600);
                         await Girar(-90,1);
@@ -355,7 +364,7 @@ async Task Redzone() {
                         }
                         await Girar(45,1);
                         MoverMotores(250,250);
-                        await Time.Delay(1200);
+                        await Time.Delay(1000);
                         await AcharLinha();
                         return;
                     }
@@ -363,15 +372,14 @@ async Task Redzone() {
                 await Girar(45,1);
                 MoverMotores(300,300);
                 await Time.Delay(2800);
-                
-            }
+            }  
         }
     }
+            
 }
 
 async Task Main() {
     Destravar();
-        IO.Print("linha");
     while(true) {
         await Preto();
         await Verde();
