@@ -11,6 +11,4 @@
 
 </br>
 
-* A cópia ou utilização dos arquivos disponibilizados nesses repositórios é explicitamente proibida,
-* podendo acarretar na desclassificação da equipe na competição. Esse repositório foi criado com o intuito
-* único de compartilhar ideias e possíveis soluções para a olimpíada.
+* A cópia ou utilização dos arquivos disponibilizados nesses repositórios é permitida, porém os códigos devem ser usados com o intuito de aprender. A cópia exata do código pode acarretar na desclassificação da equipe na competição. Esse repositório foi criado com o intuito de compartilhar ideias e possíveis soluções para a olimpíada.
